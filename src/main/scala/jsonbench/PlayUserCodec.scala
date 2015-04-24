@@ -1,30 +1,27 @@
 package jsonbench
 
+import jsonbench.model._
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
 
 object PlayUserCodec {
-  implicit val userReads = (
-    (JsPath \ "id").read[Int] and
-    (JsPath \ "email").read[String] and
-    (JsPath \ "login").read[String]
-  )(User.apply _)
+  implicit val entityWithMapFormat = Json.format[EntityWithMap]
 
-  implicit val userWrites = (
-    (JsPath \ "id").write[Int] and
-    (JsPath \ "email").write[String] and
-    (JsPath \ "login").write[String]
-  )(unlift(User.unapply))
+  implicit val entityWithSeqFormat = Json.format[EntityWithSeq]
 
-  def decode(s: String): User = {
+  implicit val plainEntityFormat = Json.format[PlainEntity]
+
+  implicit val complexEntityFormat = Json.format[ComplexEntity]
+
+  def decode(s: String): ComplexEntity = {
     val json = Json.parse(s)
-    json.validate[User] match {
-      case u: JsSuccess[User] => u.get
+    json.validate[ComplexEntity] match {
+      case u: JsSuccess[ComplexEntity] => u.get
       case e: JsError => throw new RuntimeException(JsError.toFlatJson(e).toString())
     }
   }
 
-  def encode(u: User): String = {
+  def encode(u: ComplexEntity): String = {
     val json = Json.toJson(u)
     json.toString()
   }

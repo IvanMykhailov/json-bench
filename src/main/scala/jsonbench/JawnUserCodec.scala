@@ -3,14 +3,22 @@ package jsonbench
 import spray.json._
 import DefaultJsonProtocol._
 import jawn.support.spray.Parser
+import jsonbench.model._
+
 
 object JawnUserCodec {
-  implicit val userFormat = jsonFormat(User, "id", "email", "login")
+  implicit val entityWithMapFormat = jsonFormat(EntityWithMap, "map")
 
-  def decode(s: String): User = {
+  implicit val entityWithSeqFormat = jsonFormat(EntityWithSeq, "seq")
+
+  implicit val plainEntityFormat = jsonFormat(PlainEntity, "intval", "stringval", "optval")
+
+  implicit val complexEntityFormat: JsonFormat[ComplexEntity] = lazyFormat(jsonFormat(ComplexEntity, "complexEntity", "plainEntity", "entityWithMap"))
+
+  def decode(s: String): ComplexEntity = {
     val json = Parser.parseFromString(s).get
-    json.convertTo[User]
+    json.convertTo[ComplexEntity]
   }
 
-  def encode(u: User): String = ???
+  def encode(u: ComplexEntity): String = ???
 }
